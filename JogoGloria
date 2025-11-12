@@ -1,0 +1,87 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <limits>
+using namespace std;
+
+const int NUM_CASAS = 30;
+const int CASA_PULE = 5;
+const int CASA_VOLTAR = 10;
+const int CASA_AVANCAR = 15;
+const int CASA_JOGA = 20;
+const int CASA_ESPERA = 25;
+
+void mostrarTabuleiro(int pos1, int pos2) {
+    for (int i = 1; i <= NUM_CASAS; i++) {
+        cout << "[";
+        if (i == pos1 && i == pos2) cout << "⭐🔥";
+        else if (i == pos1) cout << "⭐";
+        else if (i == pos2) cout << "🔥";
+        else if (i == CASA_PULE) cout << "P";
+        else if (i == CASA_VOLTAR) cout << "V";
+        else if (i == CASA_AVANCAR) cout << "A";
+        else if (i == CASA_JOGA) cout << "J";
+        else if (i == CASA_ESPERA) cout << "E";
+        else cout << i;
+        cout << "]";
+    }
+    cout << "\n\n";
+}
+
+bool jogar(int &pos, bool &pula, int posOponente, int turno) {
+    if (pula) {
+        cout << (turno == 1 ? "⭐" : "🔥") << " perdeu a vez!\n";
+        pula = false;
+        return false;
+    }
+
+    cout << (turno == 1 ? "⭐" : "🔥") << ", pressione Enter para rolar o dado...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
+
+    int dado = rand() % 6 + 1;
+    cout << (turno == 1 ? "⭐" : "🔥") << " tirou o número: " << dado << "\n";
+
+    pos += dado;
+    if (pos > NUM_CASAS) pos = NUM_CASAS;
+
+    if (pos == CASA_PULE) pula = true;
+    if (pos == CASA_VOLTAR) { pos -= 3; if (pos < 1) pos = 1; }
+    if (pos == CASA_AVANCAR) { pos += 3; if (pos > NUM_CASAS) pos = NUM_CASAS; }
+    if (pos == CASA_JOGA) return true;
+    if (pos == CASA_ESPERA && posOponente <= pos) return false;
+
+    if (pos == NUM_CASAS) {
+        cout << (turno == 1 ? "⭐" : "🔥") << " venceu!\n";
+        return false;
+    }
+
+    return false;
+}
+
+int main() {
+    int pos1 = 1, pos2 = 1;
+    bool pula1 = false, pula2 = false;
+    int turno = 1;
+
+    srand(time(0));
+
+    while (true) {
+        system("clear");
+        mostrarTabuleiro(pos1, pos2);
+
+        bool repeteTurno = false;
+        if (turno == 1)
+            repeteTurno = jogar(pos1, pula1, pos2, 1);
+        else
+            repeteTurno = jogar(pos2, pula2, pos1, 2);
+
+        if (!repeteTurno)
+            turno = (turno == 1 ? 2 : 1);
+
+        if (pos1 == NUM_CASAS || pos2 == NUM_CASAS)
+            break;
+    }
+
+    return 0;
+}
